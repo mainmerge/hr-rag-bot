@@ -27,8 +27,8 @@ CHROMA_DIR = ROOT / "chroma_db"
 COLLECTION = "hr_policies"
 
 EMBED_MODEL = os.getenv("EMBED_MODEL", "intfloat/multilingual-e5-small")
-# Алиас gemini-flash-latest всегда указывает на актуальную Flash-модель.
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
+# По умолчанию — gemini-3.1-flash-lite: на ней получены результаты в eval/results.md.
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
 # Минимальная пауза между запросами к Gemini (бесплатный тариф ограничен по RPM).
 GEMINI_MIN_INTERVAL = float(os.getenv("GEMINI_MIN_INTERVAL", "6"))
 GEMINI_MAX_RETRIES = int(os.getenv("GEMINI_MAX_RETRIES", "6"))

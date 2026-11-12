@@ -16,7 +16,7 @@
 |---|---|
 | Эмбеддинги | `intfloat/multilingual-e5-small` (sentence-transformers, локально, CPU) |
 | Векторная БД | ChromaDB, локально в `chroma_db/`, косинусная метрика |
-| LLM | Google Gemini через SDK `google-genai` (по умолчанию `gemini-flash-latest`) |
+| LLM | Google Gemini через SDK `google-genai` (по умолчанию `gemini-3.1-flash-lite`, на ней получены результаты ниже) |
 | UI | Streamlit |
 | Оценка | собственный `eval.py`: hit@k, MRR, LLM-as-judge |
 
@@ -84,7 +84,7 @@ streamlit run app.py        # веб-интерфейс на http://localhost:85
 | Переменная | По умолчанию | Назначение |
 |---|---|---|
 | `GEMINI_API_KEY` | — (обязательна для генерации) | ключ Gemini API |
-| `GEMINI_MODEL` | `gemini-flash-latest` | модель генерации |
+| `GEMINI_MODEL` | `gemini-3.1-flash-lite` | модель генерации |
 | `GEMINI_JUDGE_MODEL` | = `GEMINI_MODEL` | модель-судья в eval |
 | `GEMINI_MIN_INTERVAL` | `6` | пауза между запросами, с |
 | `GEMINI_MAX_RETRIES` | `6` | повторов при 429/5xx/таймауте |
