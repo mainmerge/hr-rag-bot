@@ -1,0 +1,17 @@
+# окружение
+.venv/
+venv/
+env/
+.env
+
+# векторная база
+chroma_db/
+chroma/
+
+# кэш оценки (ответы модели); results.md коммитим
+eval/cache/
+
+# python
+__pycache__/
+*.pyc
+.streamlit/secrets.toml
