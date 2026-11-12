@@ -32,6 +32,8 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-latest")
 # Минимальная пауза между запросами к Gemini (бесплатный тариф ограничен по RPM).
 GEMINI_MIN_INTERVAL = float(os.getenv("GEMINI_MIN_INTERVAL", "6"))
 GEMINI_MAX_RETRIES = int(os.getenv("GEMINI_MAX_RETRIES", "6"))
+# Таймаут одного HTTP-запроса: без него зависший запрос блокирует прогон навсегда.
+GEMINI_TIMEOUT = float(os.getenv("GEMINI_TIMEOUT", "120"))
 
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 100
@@ -159,13 +161,17 @@ _limiter = _RateLimiter(GEMINI_MIN_INTERVAL)
 @lru_cache(maxsize=1)
 def get_client():
     from google import genai
+    from google.genai import types
 
     if not os.getenv("GEMINI_API_KEY"):
         raise RuntimeError(
             "Не задан GEMINI_API_KEY. Получите ключ в Google AI Studio и задайте переменную "
             "окружения или строку GEMINI_API_KEY=... в файле .env"
         )
-    return genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+    return genai.Client(
+        api_key=os.environ["GEMINI_API_KEY"],
+        http_options=types.HttpOptions(timeout=int(GEMINI_TIMEOUT * 1000)),  # мс
+    )
 
 
 def _retry_delay(err: Exception, attempt: int) -> float:
@@ -199,6 +205,12 @@ def gemini_generate(prompt: str, *, system: str | None = None, schema=None,
                 raise
             delay = _retry_delay(e, attempt)
             print(f"  [gemini] {e.code}: повтор через {delay:.0f} с (попытка {attempt + 1})", flush=True)
+            time.sleep(delay)
+        except Exception as e:  # таймаут / обрыв соединения на уровне HTTP-клиента
+            if "timeout" not in type(e).__name__.lower() or attempt == GEMINI_MAX_RETRIES:
+                raise
+            delay = min(5 * 2**attempt, 120)
+            print(f"  [gemini] таймаут: повтор через {delay:.0f} с (попытка {attempt + 1})", flush=True)
             time.sleep(delay)
 
 
